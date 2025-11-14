@@ -1,0 +1,184 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>School Page</h1>
+    <p>Welcome to the School Page!</p>
+    <p>Search Your School </p>
+    <searchform 
+
+    </searchform>
+    <p>List of Schools</p>
+    <ul>
+        
+        <li id="loading">Loading schools...</li>
+        <script>
+        (async function(){
+            const script = document.currentScript;
+            const ul = script.parentElement;
+            const loading = ul.querySelector('#loading');
+            try {
+                const res = await fetch('http://127.0.0.1:8000/api/SchoolAPIView/');
+                if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+                const data = await res.json();
+                console.log(data);  
+                if (loading) loading.remove();
+                if (Array.isArray(data.data) && data.data.length) {
+                    data.data.forEach(item => {
+                        const li = document.createElement('li');
+                        console.log(item);
+                        li.textContent = (typeof item === 'string') ? item : (item.Name  || JSON.stringify(item));
+                        ul.appendChild(li);
+                    });
+                } else {
+                    const li = document.createElement('li');
+                    li.textContent = 'No schools found';
+                    ul.appendChild(li);
+                }
+            } catch (err) {
+                if (loading) loading.textContent = 'Failed to load schools';
+                console.error(err);
+            }
+        })();
+        </script>
+    </ul>
+
+
+<p>List of Students</p>
+    <ul>
+        
+        <li id="loading">Loading Students...</li>
+        <script>
+        (async function(){
+            const script = document.currentScript;
+            const ul = script.parentElement;
+            const loading = ul.querySelector('#loading');
+            try {
+                const res = await fetch('http://127.0.0.1:8000/api/StudentAPIView/');
+                if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+                const data = await res.json();
+                console.log(data);  
+                if (loading) loading.remove();
+                if (Array.isArray(data.data) && data.data.length) {
+                    data.data.forEach(item => {
+                        const li = document.createElement('li');
+                        console.log(item);
+                        li.textContent = (typeof item === 'string') ? item : (item.Name  || JSON.stringify(item));
+                        ul.appendChild(li);
+                    });
+                } else {
+                    const li = document.createElement('li');
+                    li.textContent = 'No schools found';
+                    ul.appendChild(li);
+                }
+            } catch (err) {
+                if (loading) loading.textContent = 'Failed to load schools';
+                console.error(err);
+            }
+        })();
+        </script>
+    </ul>
+
+<p>Add School</p>
+    <form id="add-school-form">
+        <input type="text" name="Name" placeholder="School Name" required>
+        <button type="submit">Add School</button>
+    </form>
+    <script>
+        (function(){
+            const form = document.getElementById('add-school-form');
+            form.onsubmit = async function(e){
+                e.preventDefault();
+                const formData = new FormData(form);
+                const data = {};
+                formData.forEach((value, key) => {
+                    data[key] = value;
+                });
+                try {
+                    const res = await fetch('127.0.0.1:8000/api/SchoolAPIView/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+                    const result = await res.json();
+                    console.log(result);
+                    alert('School added successfully!');
+                } catch (err) {
+                    console.error(err);
+                    alert('Failed to add school. Check console for details.');
+                }
+            }
+        })();
+    </script>
+
+<p> Add Student </p>
+
+    <form id="add-Student-form">
+        <input type="text" name="Name" placeholder="Student Name" required>
+        <input type="text" name="Enrollment" placeholder="Enrollment NO." required>
+        <select name="School" id="school-select" required>
+            <option value="">Select school...</option>
+        </select>
+        <script>
+        (async function(){
+            const select = document.getElementById('school-select');
+            try {
+                const res = await fetch('http://127.0.0.1:8000/api/SchoolAPIView/');
+                if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+                const json = await res.json();
+                const items = Array.isArray(json.data) ? json.data : (json.data ? [json.data] : []);
+                items.forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = item.id ?? item.Name ?? JSON.stringify(item);
+                    opt.textContent = item.Name ?? JSON.stringify(item);
+                    select.appendChild(opt);
+                });
+            } catch (err) {
+                console.error(err);
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = 'Failed to load schools';
+                select.appendChild(opt);
+            }
+        })();
+        </script>
+        <button type="submit">Add Student</button>
+    </form>
+    <script>
+        (function(){
+            const form = document.getElementById('add-Student-form');
+            form.onsubmit = async function(e){
+                e.preventDefault();
+                const formData = new FormData(form);
+                const data = {};
+                formData.forEach((value, key) => {
+                    data[key] = value;
+                });
+                try {
+                    const res = await fetch('127.0.0.1:8000/api/StudentAPIView/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+                    const result = await res.json();
+                    console.log(result);
+                    alert('Student added successfully!');
+                } catch (err) {
+                    console.error(err);
+                    alert('Failed to add Student. Check console for details.');
+                }
+            }
+        })();
+    </script>
+
+</body>
+</html>
